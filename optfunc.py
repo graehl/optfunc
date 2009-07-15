@@ -3,6 +3,14 @@ import sys, inspect, re
 
 single_char_prefix_re = re.compile('^[a-zA-Z0-9]_')
 
+# Set this to any message you want to be printed
+# before the standard help
+# This could include application name, description
+header = ''
+
+# non-standard separator to use
+subcommand_sep = '\n'
+
 class ErrorCollectingOptionParser(OptionParser):
     def __init__(self, *args, **kwargs):
         self._errors = []
@@ -107,11 +115,17 @@ def run(
         except IndexError:
             func_name = None
         if func_name not in funcs:
-            names = ["'%s'" % fn.__name__ for fn in func]
-            s = ', '.join(names[:-1])
-            if len(names) > 1:
-                s += ' or %s' % names[-1]
-            stderr.write("Unknown command: try %s\n" % s)
+            stderr.write("%s\n"%header)
+            names = ["%s" % fn.__name__ for fn in func]
+            
+            s = ''
+            if subcommand_sep:
+                s = subcommand_sep.join(names)
+            else:
+                s = ', '.join(names[:-1])
+                if len(names) > 1:
+                    s += ' or %s' % names[-1]
+            stderr.write("Unknown command: try%s%s\n" % (subcommand_sep, s) )
             return
         func = funcs[func_name]
         include_func_name_in_errors = True
