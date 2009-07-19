@@ -86,11 +86,13 @@ def resolve_args(func, argv):
             setattr(options, 'optfunc_use_%s' % pipe, True)
     
     # Do we have correct number af required args?
-    if len(required_args) != len(args):
+    if len(required_args) > len(args):
         if not hasattr(func, 'optfunc_notstrict'):
             parser._errors.append('Required %d arguments, got %d' % (
                 len(required_args), len(args)
             ))
+            
+            parser._errors.append("Usage:\n%s"%func.__doc__)
     
     # Ensure there are enough arguments even if some are missing
     args += [None] * (len(required_args) - len(args))
@@ -115,17 +117,15 @@ def run(
         except IndexError:
             func_name = None
         if func_name not in funcs:
-            stderr.write("%s\n"%header)
-            names = ["%s" % fn.__name__ for fn in func]
-            
-            s = ''
-            if subcommand_sep:
-                s = subcommand_sep.join(names)
-            else:
-                s = ', '.join(names[:-1])
-                if len(names) > 1:
-                    s += ' or %s' % names[-1]
-            stderr.write("Unknown command: try%s%s\n" % (subcommand_sep, s) )
+            def format( fn ):
+                blurb = fn.__doc__.strip().split('\n')[0]
+                return "%s - %s" % (fn.__name__, blurb)
+                
+            names = [format(fn) for fn in func]
+            s = subcommand_join_str.join(names)
+            #if len(names) > 1:
+                #s += ' or %s' % names[-1]
+            stderr.write("%s\n%s\n" % (header, s) )
             return
         func = funcs[func_name]
         include_func_name_in_errors = True
