@@ -101,8 +101,11 @@ def resolve_args(func, argv):
         setattr(options, name, args[i])
         args[i] = None
     
-    args = filter( lambda x: x is not None, args )
-    setattr(options, 'rest_', tuple(args))
+    args, _, _, _ = inspect.getargspec(func)
+    if 'rest_' in args:
+        args = filter( lambda x: x is not None, args )
+        setattr(options, 'rest_', tuple(args))
+
     return options.__dict__, parser._errors
 
 def run(
@@ -122,6 +125,8 @@ def run(
             func_name = None
         if func_name not in funcs:
             def format( fn ):
+                if not fn.__doc__: return ""
+
                 blurb = fn.__doc__.strip().split('\n')[0]
                 return "%s - %s" % (fn.__name__, blurb)
                 
