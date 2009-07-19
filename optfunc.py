@@ -41,6 +41,7 @@ def func_to_optionparser(func):
     else:
         required_args = args[argstart:]
     
+    args = filter( lambda x: x != 'rest_', args )
     # Build the OptionParser:
     opt = ErrorCollectingOptionParser(usage = func.__doc__)
     
@@ -98,7 +99,10 @@ def resolve_args(func, argv):
     args += [None] * (len(required_args) - len(args))
     for i, name in enumerate(required_args):
         setattr(options, name, args[i])
+        args[i] = None
     
+    args = filter( lambda x: x is not None, args )
+    setattr(options, 'rest_', tuple(args))
     return options.__dict__, parser._errors
 
 def run(
