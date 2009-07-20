@@ -131,7 +131,7 @@ def run(
                 return "%s - %s" % (fn.__name__, blurb)
                 
             names = [format(fn) for fn in func]
-            s = subcommand_join_str.join(names)
+            s = subcommand_sep.join(names)
             #if len(names) > 1:
                 #s += ' or %s' % names[-1]
             stderr.write("%s\n%s\n" % (header, s) )
