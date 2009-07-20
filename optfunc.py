@@ -125,10 +125,10 @@ def run(
             func_name = None
         if func_name not in funcs:
             def format( fn ):
-                if not fn.__doc__: return ""
-
-                blurb = fn.__doc__.strip().split('\n')[0]
-                return "%s - %s" % (fn.__name__, blurb)
+                blurb = ""
+                if fn.__doc__:
+                    blurb = " - " + fn.__doc__.strip().split('\n')[0]
+                return "%s%s" % (fn.__name__, blurb)
                 
             names = [format(fn) for fn in func]
             s = subcommand_sep.join(names)
