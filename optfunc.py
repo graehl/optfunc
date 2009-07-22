@@ -33,6 +33,7 @@ def func_to_optionparser(func):
     args, varargs, varkw, defaultvals = inspect.getargspec(func)
     defaultvals = defaultvals or ()
     options = dict(zip(args[-len(defaultvals):], defaultvals))
+    options.pop('rest_', None)
     argstart = 0
     if func.__name__ == '__init__':
         argstart = 1
@@ -73,7 +74,7 @@ def func_to_optionparser(func):
             short_name, long_name, action=action, dest=name, default=example,
             help = helpdict.get(funcname, '')
         ))
-    
+
     return opt, required_args
 
 def resolve_args(func, argv):
