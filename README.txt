@@ -153,6 +153,8 @@ This approach is limited in that help can be provided for an individual option
 but not for the application as a whole. If anyone knows how to get optparse to
 handle the subcommand pattern please let me know.
 
+optfunc.header, if set, is printed before the list of subcommands.
+
 Decorators
 ----------
 
