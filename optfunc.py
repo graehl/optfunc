@@ -70,13 +70,16 @@ def func_to_optionparser(func):
         if type(example) is bool:
             no_name='--no%s'%longn
             opt.add_option(make_option(
-                no_name, action='store_false', dest=name,help = helpdict.get(funcname, 'set %s=False'%long_name)
+                no_name, action='store_false', dest=name,help = helpdict.get(funcname, 'unset %s'%long_name)
             ))
-            help_post='(%s by default)'%example
             action = 'store_true'
         else:
-            help_post=''
             action = 'store'
+        examples=str(example)
+        if type(example) is int:
+            if example==sys.maxint: examples="INFINITY"
+            if example==(-sys.maxint-1): examples="-INFINITY"
+        help_post=' (default: %s)'%examples
         opt.add_option(make_option(
             short_name, long_name, action=action, dest=name, default=example,
             help = helpdict.get(funcname, '')+help_post
