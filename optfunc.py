@@ -1,6 +1,5 @@
 from optparse import OptionParser, make_option
 import sys, inspect, re
-from dumpx import *
 
 single_char_prefix_re = re.compile('^[a-zA-Z0-9]_')
 
