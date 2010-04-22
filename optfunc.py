@@ -1,5 +1,6 @@
 from optparse import OptionParser, make_option
 import sys, inspect, re
+from dumpx import *
 
 single_char_prefix_re = re.compile('^[a-zA-Z0-9]_')
 
@@ -17,7 +18,7 @@ class ErrorCollectingOptionParser(OptionParser):
         self._custom_names = {}
         # can't use super() because OptionParser is an old style class
         OptionParser.__init__(self, *args, **kwargs)
-    
+
     def parse_args(self, argv):
         options, args = OptionParser.parse_args(self, argv)
         for k,v in options.__dict__.iteritems():
@@ -41,13 +42,13 @@ def func_to_optionparser(func):
         required_args = args[argstart:-len(defaultvals)]
     else:
         required_args = args[argstart:]
-    
+
     args = filter( lambda x: x != 'rest_', args )
     # Build the OptionParser:
     opt = ErrorCollectingOptionParser(usage = func.__doc__)
-    
+
     helpdict = getattr(func, 'optfunc_arghelp', {})
-    
+
     # Add the options, automatically detecting their -short and --long names
     shortnames = set(['h'])
     for funcname, example in options.items():
@@ -62,17 +63,24 @@ def func_to_optionparser(func):
             for short in name:
                 if short not in shortnames:
                     break
-        
+
         shortnames.add(short)
         short_name = '-%s' % short
-        long_name = '--%s' % name.replace('_', '-')
-        if example in (True, False, bool):
+        longn=name.replace('_', '-')
+        long_name = '--%s' % longn
+        if type(example) is bool:
+            no_name='--no%s'%longn
+            opt.add_option(make_option(
+                no_name, action='store_false', dest=name,help = helpdict.get(funcname, 'set %s=False'%long_name)
+            ))
+            help_post='(%s by default)'%example
             action = 'store_true'
         else:
+            help_post=''
             action = 'store'
         opt.add_option(make_option(
             short_name, long_name, action=action, dest=name, default=example,
-            help = helpdict.get(funcname, '')
+            help = helpdict.get(funcname, '')+help_post
         ))
 
     return opt, required_args
@@ -80,28 +88,28 @@ def func_to_optionparser(func):
 def resolve_args(func, argv):
     parser, required_args = func_to_optionparser(func)
     options, args = parser.parse_args(argv)
-    
+
     # Special case for stdin/stdout/stderr
     for pipe in ('stdin', 'stdout', 'stderr'):
         if pipe in required_args:
             required_args.remove(pipe)
             setattr(options, 'optfunc_use_%s' % pipe, True)
-    
+
     # Do we have correct number af required args?
     if len(required_args) > len(args):
         if not hasattr(func, 'optfunc_notstrict'):
             parser._errors.append('Required %d arguments, got %d' % (
                 len(required_args), len(args)
             ))
-            
+
             parser._errors.append("Usage:\n%s"%func.__doc__)
-    
+
     # Ensure there are enough arguments even if some are missing
     args += [None] * (len(required_args) - len(args))
     for i, name in enumerate(required_args):
         setattr(options, name, args[i])
         args[i] = None
-    
+
     fargs, _, _, _ = inspect.getargspec(func)
     if 'rest_' in fargs:
         args = filter( lambda x: x is not None, args )
@@ -114,7 +122,7 @@ def run(
     ):
     argv = argv or sys.argv[1:]
     include_func_name_in_errors = False
-    
+
     # Handle multiple functions
     if isinstance(func, (tuple, list)):
         funcs = dict([
@@ -130,7 +138,7 @@ def run(
                 if fn.__doc__:
                     blurb = " - " + fn.__doc__.strip().split('\n')[0]
                 return "%s%s" % (fn.__name__, blurb)
-                
+
             names = [format(fn) for fn in func]
             s = subcommand_sep.join(names)
             #if len(names) > 1:
@@ -149,12 +157,12 @@ def run(
             resolved, errors = {}, []
     else:
         raise TypeError('arg is not a Python function or class')
-    
+
     # Special case for stdin/stdout/stderr
     for pipe in ('stdin', 'stdout', 'stderr'):
         if resolved.pop('optfunc_use_%s' % pipe, False):
             resolved[pipe] = locals()[pipe]
-    
+
     if not errors:
         try:
             return func(**resolved)
