@@ -3,7 +3,16 @@ optfunc
 
 Parse command line options in Python using function introspection.
 
-Post feedback here: http://simonwillison.net/2009/May/28/optfunc/
+Changes (graehl):
+=======
+
+* properly detect boolean typed args as distinct from integer 0 or 1
+* for boolean option --flag (which may be True by default) add a --noflag option as well
+* show default value in -h
+
+=======
+
+Originally from http://simonwillison.net/2009/May/28/optfunc/
 
 I can never remember how to use any of Python's regular command line parsing
 libraries.
