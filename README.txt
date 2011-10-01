@@ -10,7 +10,7 @@ New example usage:
 
 import optfunc
 @optfunc.arghelp('rest_','input files')
-def main(rest_=['-'],keyfields=1,sep='\t',usage_=usage):
+def main(rest_=['/dev/stdin'],keyfields=1,sep='\t',usage_="print the first -k fields, -s separated"):
     for f in rest_:
         for l in open(f):
             print sep.join(l.split(sep)[0:keyfields])
