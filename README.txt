@@ -6,6 +6,20 @@ Parse command line options in Python using function introspection.
 Changes (graehl):
 =======
 
+New example usage:
+
+import optfunc
+@optfunc.arghelp('rest_','input files')
+def main(rest_=['-'],keyfields=1,sep='\t',usage_=usage):
+    for f in rest_:
+        for l in open(f):
+            print sep.join(l.split(sep)[0:keyfields])
+optfunc.main(main)
+
+=======
+
+* usage_ and rest_ (positional arg list) args
+* pychecker and pypy compliant 
 * properly detect boolean typed args as distinct from integer 0 or 1
 * for boolean option --flag (which may be True by default) add a --noflag option as well
 * show default value in -h
@@ -16,6 +30,8 @@ Changes (graehl):
 =======
 
 Originally from http://simonwillison.net/2009/May/28/optfunc/
+
+Original docs:
 
 I can never remember how to use any of Python's regular command line parsing
 libraries.
