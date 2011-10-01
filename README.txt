@@ -10,6 +10,8 @@ Changes (graehl):
 * for boolean option --flag (which may be True by default) add a --noflag option as well
 * show default value in -h
 * optfunc.main(f) will run when eval-buffer in python interactive (emacs C-c C-c)
+* cmd(reqarg,name=val,rest_=()) - the rest_ gets a tuple of all the unparsed positional arguments. (TODO: use *rest_ instead?)
+* note: the @optfunc.notstrict annotation allows unfilled mandatory positional arguments; extra arguments are ignored unless you check rest_
 
 =======
 
